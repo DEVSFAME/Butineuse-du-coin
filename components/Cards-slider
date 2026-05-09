@@ -1,1 +1,244 @@
-Prompt : 
+Prompt : You are given a task to integrate an existing React component in the codebase. This component is a Product Cards Slider for an e-commerce store selling honey products.
+
+The codebase should support:
+
+shadcn project structure
+
+Tailwind CSS
+
+Typescript
+
+If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or Typescript.
+
+Determine the default path for components and styles.
+If default path for components is not /components/ui, provide instructions on why it's important to create this folder
+Copy-paste this component to /components/ui folder:
+
+TypeScript
+
+// cards-slider-shadcnui.tsx
+import { Card } from "@/components/ui/card";
+import { animate, motion, useMotionValue } from "framer-motion";
+import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+interface ProductData {
+  id: number;
+  name: string;
+  variant: string;
+  price: number;
+  image: string;
+}
+
+const products: ProductData[] = [
+  {
+    id: 1,
+    name: "Wildflower Honey",
+    variant: "Classic",
+    price: 15,
+    image: "https://images.unsplash.com/photo-1587049352847-4d4b126a5405?w=800&q=80",
+  },
+  {
+    id: 2,
+    name: "Clover Honey",
+    variant: "Smooth",
+    price: 18,
+    image: "https://images.unsplash.com/photo-1621505318182-3d8c1c4918e9?w=800&q=80",
+  },
+  {
+    id: 3,
+    name: "Organic Honey",
+    variant: "Raw",
+    price: 20,
+    image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=800&q=80",
+  },
+  {
+    id: 4,
+    name: "Honeycomb Treat",
+    variant: "Natural",
+    price: 25,
+    image: "https://images.unsplash.com/photo-1622396481328-9b1b78cdd9fd?w=800&q=80",
+  },
+  {
+    id: 5,
+    name: "Flavored Honey",
+    variant: "Infused",
+    price: 22,
+    image: "https://images.unsplash.com/photo-1601614352726-11f8b3fc8f6a?w=800&q=80",
+  },
+  {
+    id: 6,
+    name: "Honey Sticks",
+    variant: "Portable",
+    price: 10,
+    image: "https://images.unsplash.com/photo-1587049352851-8d4e89134fc2?w=800&q=80",
+  },
+];
+
+export function CardsSlider() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  const x = useMotionValue(0);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setWidth(
+        containerRef.current.scrollWidth - containerRef.current.offsetWidth
+      );
+    }
+  }, []);
+
+  const scrollTo = (direction: "left" | "right") => {
+    const currentX = x.get();
+    const containerWidth = containerRef.current?.offsetWidth || 0;
+    const scrollAmount = containerWidth * 0.8; // Scroll 80% of container width
+
+    let newX =
+      direction === "left" ? currentX + scrollAmount : currentX - scrollAmount;
+
+    // Clamp values
+    newX = Math.max(Math.min(newX, 0), -width);
+
+    animate(x, newX, {
+      type: "spring",
+      stiffness: 300,
+      damping: 30,
+      mass: 1,
+    });
+  };
+
+  return (
+    <div className="w-full max-w-6xl mx-auto p-8 relative group/slider">
+      {/* Navigation Arrows */}
+      <div className="absolute top-1/2 -translate-y-1/2 left-2 z-20 opacity-0 group-hover/slider:opacity-100 transition-opacity duration-300">
+        <button
+          onClick={() => scrollTo("left")}
+          className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md border border-border/50 shadow-lg flex items-center justify-center hover:bg-background hover:scale-110 transition-all active:scale-95 text-foreground"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+      </div>
+      <div className="absolute top-1/2 -translate-y-1/2 right-2 z-20 opacity-0 group-hover/slider:opacity-100 transition-opacity duration-300">
+        <button
+          onClick={() => scrollTo("right")}
+          className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md border border-border/50 shadow-lg flex items-center justify-center hover:bg-background hover:scale-110 transition-all active:scale-95 text-foreground"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+      </div>
+
+      <motion.div
+        ref={containerRef}
+        className="cursor-grab active:cursor-grabbing overflow-hidden px-4 py-8 -mx-4 -my-8"
+        whileTap={{ cursor: "grabbing" }}
+      >
+        <motion.div
+          drag="x"
+          dragConstraints={{ right: 0, left: -width }}
+          dragElastic={0.1}
+          style={{ x }}
+          className="flex gap-6"
+        >
+          {products.map((product) => (
+            <motion.div
+              key={product.id}
+              className="min-w-[320px] max-w-[320px] h-[450px]"
+              whileHover={{ y: -10, transition: { duration: 0.3 } }}
+            >
+              <Card className="group relative h-full overflow-hidden rounded-3xl border-border/50 transition-all duration-500 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10">
+                {/* Full Background Image */}
+                <div className="absolute inset-0">
+                  <motion.img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  {/* Gradient overlay to ensure glassmorphism visibility and text contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80" />
+                </div>
+
+                {/* Glassmorphism Bottom Content */}
+                <div className="absolute inset-x-0 bottom-0 p-6 bg-black/30 backdrop-blur-md border-t border-white/20 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                  <div className="flex justify-between items-end mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-white tracking-tight drop-shadow-md">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm font-medium text-white/80 mt-1">
+                        {product.variant}
+                      </p>
+                    </div>
+                    <div className="text-2xl font-bold text-white drop-shadow-md">
+                      ${product.price}
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full flex items-center justify-center gap-2 rounded-full bg-white/90 px-5 py-3 text-sm font-bold text-black shadow-lg hover:bg-white transition-colors"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    Add to cart
+                  </motion.button>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+TypeScript
+
+// demo.tsx
+import { CardsSlider } from "@/components/ui/cards-slider-shadcnui"
+
+export default function Demo() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background p-8 overflow-hidden">
+      <div className="w-full">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold mb-2">Our Products</h2>
+          <p className="text-muted-foreground">Explore our range of pure honey delights.</p>
+        </div>
+        <CardsSlider />
+      </div>
+    </div>
+  )
+}
+Install NPM dependencies:
+
+Bash
+
+npm install framer-motion lucide-react
+Implementation Guidelines
+
+Analyze the component structure and identify all required dependencies
+
+Review the component's argumens and state
+
+Identify any required context providers or hooks and install them
+
+Questions to Ask
+
+What data/props will be passed to this component? (Hint: The data should match the e-commerce nature of the products provided).
+
+Are there any specific state management requirements for the cart?
+
+What is the expected responsive behavior on mobile (touch swiping)?
+
+What is the best place to use this component in the app?
+
+Steps to integrate
+0. Copy paste all the code above in the correct directories  
+
+Install external dependencies  
+
+Note that image assets are already filled with Unsplash stock images of honey.  
+
+Use lucide-react icons for svgs.

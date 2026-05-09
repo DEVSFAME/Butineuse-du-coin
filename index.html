@@ -18,6 +18,67 @@
   -o-font-smoothing: antialiased;
 }
 </style>
+
+<!-- Phase 2: Navbar Glassmorphism CSS -->
+<style>
+  /* ── Initial state (scroll = 0) ── */
+  .navbar2_component {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+    transition: background 0.3s ease,
+                box-shadow 0.3s ease,
+                backdrop-filter 0.3s ease,
+                -webkit-backdrop-filter 0.3s ease,
+                border-color 0.3s ease;
+  }
+
+  .navbar2_component .navbar2_link,
+  .navbar2_component .navbar2_dropdwn-toggle,
+  .navbar2_component .navbar2_button-wrapper {
+    color: #ffffff;
+    transition: color 0.3s ease;
+  }
+
+  .navbar2_component .navbar2_logo-image {
+    transition: opacity 0.2s ease;
+  }
+
+  /* ── Scrolled state (scroll > 50px) ── */
+  .navbar2_component.scrolled {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08),
+                0 4px 12px rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .navbar2_component.scrolled .navbar2_link,
+  .navbar2_component.scrolled .navbar2_dropdwn-toggle,
+  .navbar2_component.scrolled .navbar2_button-wrapper {
+    color: #0d0901;
+  }
+
+  /* ── Link hover effect ── */
+  .navbar2_component.scrolled .navbar2_link:hover {
+    color: var(--_primitives---colors--sun, #fbac0c);
+  }
+
+  /* ── Dropdown chevron color inheritance ── */
+  .navbar2_component .navbar2_dropdwn-toggle svg path {
+    transition: fill 0.3s ease;
+  }
+
+  /* ── Button in navbar ── */
+  .navbar2_component .button.is-alternate {
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .navbar2_component.scrolled .button.is-alternate {
+    color: #0d0901;
+    border-color: #0d0901;
+  }
+</style>
 </head>
 <body>
   <div class="page-wrapper">
@@ -259,12 +320,13 @@ margin: 0rem !important;
           <div class="navbar2_logo-image-wrapper"><img src="images/logo-clair.png" alt="Les Butineuses du Coin Logo" class="navbar2_logo-image"></div>
         </a>
         <nav role="navigation" id="w-node-_81c78700-a17b-f025-f15c-7c295c257ce1-5c257cdd" class="navbar2_menu is-page-height-tablet w-nav-menu">
-          <a href="#" class="navbar2_link w-nav-link">Boutique</a>
+          <a href="index.html" class="navbar2_link w-nav-link">Accueil</a>
+          <a href="products.html" class="navbar2_link w-nav-link">Boutique</a>
           <a href="about-us.html" class="navbar2_link w-nav-link">À Propos</a>
           <a href="#" class="navbar2_link w-nav-link">Recettes</a>
-          <a href="#savoir-faire" class="navbar2_link w-nav-link">Savoir-Faire</a>
+          <a href="#" class="navbar2_link w-nav-link">Musée</a>
           <a href="#" class="navbar2_link w-nav-link">Contact</a>
-          <div data-delay="200" data-hover="true" class="navbar2_menu-dropdown w-dropdown">
+<div data-delay="200" data-hover="true" class="navbar2_menu-dropdown w-dropdown">
             <div class="navbar2_dropdwn-toggle w-dropdown-toggle">
               <div>FR</div>
               <div class="dropdown-chevron w-embed"><svg width=" 100%" height=" 100%" viewbox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1017,5 +1079,39 @@ margin: 0rem !important;
   <script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=68918dcccff616f6d6f81c86" type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
   <script src="js/webflow.js" type="text/javascript"></script>
   <script src="js/parallax-animations.js" type="text/javascript"></script>
+
+<!-- Phase 2: Navbar Glassmorphism Scroll Behavior -->
+<script>
+  (function() {
+    var nav = document.querySelector('.navbar2_component');
+    var logoImg = document.querySelector('.navbar2_logo-image');
+    if (!nav || !logoImg) return;
+
+    var LOGO_LIGHT = 'images/logo-clair.png';
+    var LOGO_DARK = 'logo-fonce.png';
+    var SCROLL_THRESHOLD = 50;
+
+    function onScroll() {
+      var scrolled = window.scrollY > SCROLL_THRESHOLD;
+      if (scrolled) {
+        nav.classList.add('scrolled');
+        if (logoImg.getAttribute('src') !== LOGO_DARK) {
+          logoImg.setAttribute('src', LOGO_DARK);
+        }
+      } else {
+        nav.classList.remove('scrolled');
+        if (logoImg.getAttribute('src') !== LOGO_LIGHT) {
+          logoImg.setAttribute('src', LOGO_LIGHT);
+        }
+      }
+    }
+
+    // Set initial state
+    onScroll();
+
+    // Listen for scroll with passive flag for performance
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
 </body>
 </html>
